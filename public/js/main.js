@@ -1068,7 +1068,7 @@ document.getElementById('previewModal').addEventListener('click',function(e){if(
 
 // ── Init ─────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
-  selectTemplate('normal');
+  selectTemplate('t1');
   addEntry('edu');
   addEntry('ref');
 });

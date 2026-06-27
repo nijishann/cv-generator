@@ -18,7 +18,7 @@
 html { scroll-behavior: smooth; }
 body {
   font-family: 'Hind Siliguri', 'Inter', sans-serif;
-  background: var(--light);
+  background: linear-gradient(160deg, #e8edf5 0%, #dfe8f3 40%, #e4ecf7 70%, #eaf0f8 100%);
   color: var(--text);
   line-height: 1.6;
 }
@@ -74,7 +74,7 @@ section { padding: 60px 2rem; }
 .section-title p { color: var(--muted); margin-top: 0.5rem; font-size: 1rem; }
 
 /* ── STEPS ── */
-#how { background: var(--white); }
+#how { background: rgba(255,255,255,0.6); backdrop-filter: blur(8px); }
 .steps { display: flex; gap: 1.5rem; justify-content: center; flex-wrap: wrap; max-width: 900px; margin: 0 auto; }
 .step { flex: 1; min-width: 180px; max-width: 220px; text-align: center; }
 .step-num {
@@ -86,7 +86,7 @@ section { padding: 60px 2rem; }
 .step p { font-size: 0.82rem; color: var(--muted); }
 
 /* ── TEMPLATES ── */
-#templates { background: var(--white); }
+#templates { background: rgba(255,255,255,0.5); backdrop-filter: blur(6px); }
 .templates-grid {
   display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 1.5rem; max-width: 1000px; margin: 0 auto;
@@ -151,9 +151,9 @@ section { padding: 60px 2rem; }
 .tpl-info p { font-size: 0.76rem; color: var(--muted); line-height: 1.4; }
 
 /* ── BUILDER FORM ── */
-#builder { background: var(--light); }
+#builder { background: transparent; }
 .builder-wrapper { max-width: 860px; margin: 0 auto; }
-.form-section { background: var(--white); border-radius: 14px; padding: 2rem; margin-bottom: 1.5rem; box-shadow: var(--card-shadow); }
+.form-section { background: rgba(255,255,255,0.80); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.9); border-radius: 14px; padding: 2rem; margin-bottom: 1.5rem; box-shadow: var(--card-shadow); }
 .form-section-title {
   display: flex; align-items: center; gap: 0.7rem;
   font-size: 1.05rem; font-weight: 700; color: var(--primary);
