@@ -507,27 +507,72 @@ function lb(en, bn) { return cvLang === 'bangla' ? bn : en; }
 // ── Save & PDF ───────────────────────────────
 async function saveAndDownloadPDF() {
   const data = collectData();
-  if (!data.full_name) { showToast(lb('❌ Please enter your full name!','❌ অনুগ্রহ করে নাম পূরণ করুন!'), 'error'); return; }
-  showToast(lb('⏳ Saving CV...','⏳ CV সেভ হচ্ছে...'), '');
+  if (!data.full_name) {
+    showToast(lb('❌ Please enter your full name!','❌ অনুগ্রহ করে নাম পূরণ করুন!'), 'error');
+    return;
+  }
+
+  // আগে CV generate করি
+  generateCV();
+
+  showToast(lb('⏳ Generating PDF...','⏳ PDF তৈরি হচ্ছে...'), '');
+
+  // একটু wait করি যাতে preview render হয়
+  await new Promise(resolve => setTimeout(resolve, 800));
+
   try {
-    const formData = new FormData();
-    Object.keys(data).forEach(key => {
-      if (['education','experience','trainings','refs'].includes(key)) formData.append(key, JSON.stringify(data[key]));
-      else formData.append(key, data[key]||'');
+    const { jsPDF } = window.jspdf;
+    const cvElement = document.getElementById('cvPreview');
+
+    const canvas = await html2canvas(cvElement, {
+      scale: 2,
+      useCORS: true,
+      allowTaint: true,
+      backgroundColor: '#ffffff',
+      logging: false,
+      width: cvElement.scrollWidth,
+      height: cvElement.scrollHeight,
     });
-    if (photoFile) formData.append('photo', photoFile);
-    const saveRes = await fetch('/api/cv/save', { method: 'POST', body: formData });
-    const saveData = await saveRes.json();
-    if (!saveData.success) { showToast(lb('❌ Failed to save!','❌ সেভ করতে সমস্যা হয়েছে!'), 'error'); return; }
-    showToast(lb('✅ Saved! Generating PDF...','✅ সেভ হয়েছে! PDF তৈরি হচ্ছে...'), 'success');
-    const pdfRes = await fetch(`/api/cv/pdf/${saveData.submission_id}`);
-    const blob = await pdfRes.blob();
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url; a.download = `${data.full_name}_CV.pdf`; a.click();
-    window.URL.revokeObjectURL(url);
+
+    const imgData = canvas.toDataURL('image/jpeg', 0.95);
+    const pdf = new jsPDF({
+      orientation: 'portrait',
+      unit: 'mm',
+      format: 'a4'
+    });
+
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = pdf.internal.pageSize.getHeight();
+    const imgWidth = canvas.width;
+    const imgHeight = canvas.height;
+    const ratio = imgWidth / imgHeight;
+    const pdfImgHeight = pdfWidth / ratio;
+
+    // একাধিক page হলে
+    if (pdfImgHeight <= pdfHeight) {
+      pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfImgHeight);
+    } else {
+      let position = 0;
+      let remainingHeight = pdfImgHeight;
+      let page = 0;
+      while (remainingHeight > 0) {
+        if (page > 0) pdf.addPage();
+        pdf.addImage(imgData, 'JPEG', 0, -position, pdfWidth, pdfImgHeight);
+        position += pdfHeight;
+        remainingHeight -= pdfHeight;
+        page++;
+      }
+    }
+
+    const fileName = `${data.full_name}_CV.pdf`;
+    pdf.save(fileName);
+
     showToast(lb('🎉 PDF Downloaded!','🎉 PDF ডাউনলোড হয়েছে!'), 'success');
-  } catch(err) { showToast(lb('❌ Error! Make sure server is running.','❌ সমস্যা হয়েছে!'), 'error'); }
+
+  } catch(err) {
+    console.error(err);
+    showToast(lb('❌ PDF failed! Try Print button.','❌ সমস্যা হয়েছে!'), 'error');
+  }
 }
 
 // ── Generate CV Preview ──────────────────────
